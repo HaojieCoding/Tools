@@ -269,6 +269,7 @@ def crop_and_pad(img, x1,y1,x2,y2):
 
     # compute mean
     mean = np.array( [np.mean(img[:,:,0]),np.mean(img[:,:,1]),np.mean(img[:,:,2])], dtype=float )
+#    mean = np.zeros(3).astype(int)
 
     # compute numbers of column or row to be pad    
     pad_left = 0
@@ -312,7 +313,7 @@ def crop_and_pad(img, x1,y1,x2,y2):
         pad[:,:] = mean
         crop = np.concatenate((crop,pad),axis=0)
     
-    return crop
+    return crop.astype('uint8')
     
 
 def get_video_list(vid_dir, vid_set='vot'):
