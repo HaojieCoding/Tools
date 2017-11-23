@@ -1,5 +1,6 @@
 function [skip1,skip2,skip3,skip4,skip5]...
 = gen_skip_labels(img_input,bbox,gauss,dis)
+        
 
     bbox = round(bbox)+1;
 
@@ -51,6 +52,13 @@ function [skip1,skip2,skip3,skip4,skip5]...
                       
     end
     
+    if bbox(4) == 0
+        skip1 = zeros(224,224);
+        skip2 = zeros(112,112);
+        skip3 = zeros(56,56);
+        skip4 = zeros(28,28);
+        skip5 = zeros(14,14);
+    end
 
         
     if dis

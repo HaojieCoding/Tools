@@ -1,4 +1,4 @@
-function [img_buf,bbox_buf] = img_to_sample1(img,bbox,f_list,dis)
+function [samples_buf,bbox_buf] = img_to_sample1(img,bbox,f_list,dis)
 
     cx = round(bbox(1)+bbox(3)/2);
     cy = round(bbox(2)+bbox(4)/2);
@@ -6,6 +6,7 @@ function [img_buf,bbox_buf] = img_to_sample1(img,bbox,f_list,dis)
     longer = max(bbox(3),bbox(4));
     
     img_buf = {};
+    samples_buf = [];
     bbox_buf = [];
     
     for f = f_list
@@ -18,14 +19,23 @@ function [img_buf,bbox_buf] = img_to_sample1(img,bbox,f_list,dis)
                 off_x,     0, off_x,     0;...
                -off_x,     0,-off_x,     0;...
                     0, off_y,     0, off_y;...
-                    0,-off_y,     0,-off_y    ];
+                    0,-off_y,     0,-off_y;...
+                off_x/2,     0, off_x/2,     0;...
+               -off_x/2,     0,-off_x/2,     0;...
+                    0, off_y/2,     0, off_y/2;...
+                    0,-off_y/2,     0,-off_y/2;...
+                off_x/4,     0, off_x/4,     0;...
+               -off_x/4,     0,-off_x/4,     0;...
+                    0, off_y/4,     0, off_y/4;...
+                    0,-off_y/4,     0,-off_y/4;...
+                                                ];
                 
         % x1, y1, x2, y2
         crop = [cx-side/2, cy-side/2, cx+side/2, cy+side/2];
-        crop = repmat(crop,5,1);
+        crop = repmat(crop,13,1);
         crop = crop + off;
         
-        bbox_sample = repmat(bbox,5,1);
+        bbox_sample = repmat(bbox,13,1);
                 
         
         % to [x,y,w,h]
@@ -58,6 +68,7 @@ function [img_buf,bbox_buf] = img_to_sample1(img,bbox,f_list,dis)
             
             
             img_buf = [img_buf, img_sample];
+            samples_buf = [samples_buf;crop(i,:)];
             
         end
         bbox_buf = [bbox_buf; bbox_sample];
@@ -65,14 +76,13 @@ function [img_buf,bbox_buf] = img_to_sample1(img,bbox,f_list,dis)
     
     bbox_buf = round(bbox_buf);
         
-    bbox_buf = limit_box(img, bbox_buf);
+    bbox_buf = clip_boxes(img, bbox_buf);
     
      
     if dis
-        for i = 1:length(bbox_buf)
-            figure(i);
-            imshow(img_buf{i});
-            rectangle('Position', bbox_buf(i,:), 'EdgeColor', [1 0 0], 'Linewidth', 2);
+        imshow(img);
+        for i = 1:length(samples_buf)
+            rectangle('Position', samples_buf(i,:), 'EdgeColor', [1 0 0], 'Linewidth', 2);
         end
     end
         

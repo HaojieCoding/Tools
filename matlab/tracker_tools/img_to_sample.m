@@ -37,19 +37,17 @@ function [img_sample,bbox_sample,origin] = img_to_sample(img,bbox,flip,dis)
     
     % random bright
     img_temp = img_sample;
-    img_temp = round(img_temp + max(-10,unifrnd(-50,20)) ); 
-    for c = 1:3
-        for x = 1:size(img_temp,1)
-            for y = 1:size(img_temp,2)
-                if img_temp(x,y,c) > 255
-                    img_temp(x,y,c) = 255;
-                end
-                if img_temp(x,y,c) < 0
-                    img_temp(x,y,c) = 0;
-                end
-            end
-        end
-    end
+    img_temp = round(img_temp + unifrnd(-50,50));      
+    % brightness patch
+    cx = round(bbox_input(1)+bbox_input(3)/2);
+    cy = round(bbox_input(2)+bbox_input(4)/2);
+    gaus = gauss_map(cx,cy,...
+                     bbox_input(3)*2,...
+                     bbox_input(4)*2,224,224)*unifrnd(-0.8,0.8)+1;
+    img_temp = img_temp*gaus;
+    % limit bright
+    img_temp(img_temp>255) = 255;
+    img_temp(img_temp<0) = 0;
     img_sample = img_temp;
     
     %random flip

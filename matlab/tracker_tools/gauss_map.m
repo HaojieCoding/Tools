@@ -14,3 +14,7 @@ function [gauss_map] = gauss_map(cx,cy,w,h,img_w,img_h)
     
     gauss_map = y_h' * y_w;
     gauss_map = gauss_map/max(gauss_map(:));
+    
+    if w==0 || h==0
+        gauss_map = zeros(img_h,img_w);
+    end
