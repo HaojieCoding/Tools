@@ -1,4 +1,4 @@
-function [samples_buf,bbox_buf] = img_to_samplePos(img,bbox,f_list,dis)
+function [img_buf,bbox_buf] = img_to_sample1(img,bbox,f_list,dis)
 
     cx = round(bbox(1)+bbox(3)/2);
     cy = round(bbox(2)+bbox(4)/2);
@@ -6,7 +6,6 @@ function [samples_buf,bbox_buf] = img_to_samplePos(img,bbox,f_list,dis)
     longer = max(bbox(3),bbox(4));
     
     img_buf = {};
-    samples_buf = [];
     bbox_buf = [];
     
     for f = f_list
@@ -41,7 +40,7 @@ function [samples_buf,bbox_buf] = img_to_samplePos(img,bbox,f_list,dis)
         % to [x,y,w,h]
         crop(:,3:4) = crop(:,3:4) - crop(:,1:2);
         
-        for i = 1:size(crop,1)
+        for i = 1:length(crop)
             img_sample = crop_and_pad(img,...
                                       round(crop(i,1)), round(crop(i,2)),...
                                       round(crop(i,1)+crop(i,3)),...
@@ -68,7 +67,6 @@ function [samples_buf,bbox_buf] = img_to_samplePos(img,bbox,f_list,dis)
             
             
             img_buf = [img_buf, img_sample];
-            samples_buf = [samples_buf;crop(i,:)];
             
         end
         bbox_buf = [bbox_buf; bbox_sample];
@@ -76,13 +74,14 @@ function [samples_buf,bbox_buf] = img_to_samplePos(img,bbox,f_list,dis)
     
     bbox_buf = round(bbox_buf);
         
-%     bbox_buf = clip_boxes(img, bbox_buf);
+    bbox_buf = limit_box(img, bbox_buf);
     
      
     if dis
-        imshow(img);
-        for i = 1:length(samples_buf)
-            rectangle('Position', samples_buf(i,:), 'EdgeColor', [1 0 0], 'Linewidth', 2);
+        for i = 1:length(bbox_buf)
+            figure(i);
+            imshow(img_buf{i});
+            rectangle('Position', bbox_buf(i,:), 'EdgeColor', [1 0 0], 'Linewidth', 2);
         end
     end
         
