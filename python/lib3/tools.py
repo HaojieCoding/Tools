@@ -8,7 +8,6 @@ Created on Tue Jun 13 20:49:10 2017
 
 from __future__ import print_function
 
-import random
 import cv2
 import numpy as np
 from os import walk
@@ -54,18 +53,6 @@ def gauss_map(cx,cy,w,h,img_w,img_h):
     return gauss_map
     
 
-def gauss_map1(cx,cy,sz_w,sz_h,map_w,map_h,output_sigma_factor):
-            
-    x_w = np.linspace(0,map_w-1,map_w)
-    x_h = np.linspace(0,map_h-1,map_h)
-    
-    x_w = np.repeat(x_w[None,:],map_h,0) - cx
-    x_h = np.repeat(x_h[:,None],map_w,1) - cy
-    
-    output_sigma = np.sqrt(sz_w*sz_h) * output_sigma_factor;
-    gauss_map = np.exp(-0.5 * (((x_w**2 + x_h**2) / output_sigma**2)));
-    
-    return gauss_map
 
 def gauss_label( target_sz, feat_sz):
         
@@ -358,12 +345,13 @@ def clip_boxes(boxes,im_shape):
 
 
 
-def crop_to_bigger(img, box, times, off):
+def crop_to_bigger(img, pos, sz, times, off):
     """
     Enlarge bbox and crop img according to the bbox.
     """
     im = img.copy()
-    bbox = box.copy()
+    bbox = np.array([pos[0]-sz[0]/2,
+                     pos[1]-sz[1]/2,sz[0],sz[1]])
     
     # enlarge bbox 3 times
     cx = bbox[0]+bbox[2]/2
@@ -405,13 +393,13 @@ def crop_to_bigger2(img, box, times):
     bbox = box.copy()
     
     # enlarge bbox 3 times
-    cx = bbox[0]+bbox[2]/2
-    cy = bbox[1]+bbox[3]/2
+    cx = bbox[0]+bbox[2]//2
+    cy = bbox[1]+bbox[3]//2
     
-    l = abs(min(0,cx - np.floor(bbox[2]*times/2)))
-    r = abs(im.shape[1]-max(im.shape[1],cx + np.ceil(bbox[2]*times/2)))
-    u = abs(min(0,cy - np.floor(bbox[3]*times/2)))
-    d = abs(im.shape[0]-max(im.shape[0],cy + np.ceil(bbox[3]*times/2)))
+    l = abs(min(0,cx - np.floor(bbox[2]*times//2)))
+    r = abs(im.shape[1]-max(im.shape[1],cx + np.ceil(bbox[2]*times//2)))
+    u = abs(min(0,cy - np.floor(bbox[3]*times//2)))
+    d = abs(im.shape[0]-max(im.shape[0],cy + np.ceil(bbox[3]*times//2)))
     
     if len(im.shape)>2:
         ch0 = np.lib.pad(im[:,:,0],((int(u),int(d)),(int(l),int(r))),'constant', constant_values=np.mean(im[:,:,0]))
@@ -424,13 +412,13 @@ def crop_to_bigger2(img, box, times):
     cx += l
     cy += u
 
-    x1 = int(cx - np.floor(bbox[2]*times/2))       
-    y1 = int(cy - np.floor(bbox[3]*times/2))      
-    x2 = int(cx + np.ceil(bbox[2]*times/2))    
-    y2 = int(cy + np.ceil(bbox[3]*times/2))    
+    x1 = int(cx - np.floor(bbox[2]*times//2))       
+    y1 = int(cy - np.floor(bbox[3]*times//2))      
+    x2 = int(cx + np.ceil(bbox[2]*times//2))    
+    y2 = int(cy + np.ceil(bbox[3]*times//2))    
 
-    bbox[0] = cx - bbox[2]/2 -x1
-    bbox[1] = cy - bbox[3]/2 -y1
+    bbox[0] = cx - bbox[2]//2 -x1
+    bbox[1] = cy - bbox[3]//2 -y1
 
     return im[y1:y2,x1:x2],bbox
     
@@ -580,7 +568,7 @@ def load_video(vid_dir, vid_list, vid_id, vid_set='vot'):
         
         # remove '\n' and convert str list to float array
         for index, gt_box_i in enumerate(gt_box):
-            gt_box[index] = np.array(map( float,gt_box_i.splitlines()[0].split(',') ), dtype=int)   
+            gt_box[index] = np.array(list(map( float,gt_box_i.splitlines()[0].split(',') )), dtype=int)   
         
         # read first frame (B,G,R)
         frame = cv2.imread(vid_dir + '/' + vid_list[vid_id] + '/{:0>8d}.jpg'.format(1))
@@ -599,7 +587,7 @@ def load_video(vid_dir, vid_list, vid_id, vid_set='vot'):
         
         # remove '\n' and convert str list to float array
         for index, gt_box_i in enumerate(gt_box):
-            gt_box[index] = np.array(map( float,gt_box_i.splitlines()[0].split(',') ), dtype=int)   
+            gt_box[index] = np.array(list(map( float,gt_box_i.splitlines()[0].split(',') )), dtype=int)   
         
         # read first frame (B,G,R)
         frame = cv2.imread(vid_dir + '/' + vid_list[vid_id] + '/color/{:0>8d}.jpg'.format(1))
@@ -650,12 +638,12 @@ def load_video(vid_dir, vid_list, vid_id, vid_set='vot'):
         # remove '\n' and convert str list to float array
         for index, gt_box_i in enumerate(gt_box):
             try:
-                gt_box[index] = np.array(map( float,gt_box_i.splitlines()[0].split(',') ), dtype=int)   
+                gt_box[index] = np.array(list(map( float,gt_box_i.splitlines()[0].split(',') )), dtype=int)   
             except:
                 try:
-                    gt_box[index] = np.array(map( float,gt_box_i.splitlines()[0].split('\t') ), dtype=int)   
+                    gt_box[index] = np.array(list(map( float,gt_box_i.splitlines()[0].split('\t') )), dtype=int)   
                 except:
-                    gt_box[index] = np.array(map( float,gt_box_i.splitlines()[0].split(' ') ), dtype=int)   
+                    gt_box[index] = np.array(list(map( float,gt_box_i.splitlines()[0].split(' ') )), dtype=int)   
                     
                     
                     
