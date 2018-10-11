@@ -557,12 +557,14 @@ def get_video_list(vid_dir, vid_set='vot'):
     elif vid_set == 'otb':
         for (dirpath, seq_list, filenames) in walk(vid_dir):
             break
-        seq_list.remove('Jogging')
-        seq_list.append('Jogging-1')
-        seq_list.append('Jogging-2')
-        seq_list.remove('Skating2')
-        seq_list.append('Skating2-1')
-        seq_list.append('Skating2-2')
+        if seq_list.count('Jogging') != 0:
+            seq_list.remove('Jogging')
+            seq_list.append('Jogging-1')
+            seq_list.append('Jogging-2')
+        if seq_list.count('Skating2') != 0:
+            seq_list.remove('Skating2')
+            seq_list.append('Skating2-1')
+            seq_list.append('Skating2-2')
         seq_list.sort()
         vid_num = len(seq_list)
         return seq_list,vid_num
