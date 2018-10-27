@@ -145,6 +145,7 @@ def eval_auc(dataset='OTB2015', tracker_reg='Lite*', start=0, end=1e6):
                 preci = success_error[j, i,20]
                 auc = success_overlap[j, i, :].mean()
                 result.write('{:s} {:.3f} {:.3f}\n'.format(seqs[j],preci,auc))
+            result.write('{:s} {:.3f} {:.3f}\n'.format('total',success_error[OTB2013_id, i,20].mean(),success_overlap[OTB2013_id, i, :].mean()))
             result.write('{:s} {:.3f} {:.3f}\n'.format('total',success_error[:, i,20].mean(),success_overlap[:, i, :].mean()))
             result.close()    
 
